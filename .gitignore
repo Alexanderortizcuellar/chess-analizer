@@ -1,4 +1,5 @@
 /target
-analyzed_games.json
-annotated_games.pgn
-*.pgn
+/annotated_games.pgn
+/analyzed_games.json
+/*.exe
+.DS_Store
