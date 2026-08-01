@@ -73,17 +73,28 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     detect_all_tactics(&mut all_games);
 
     // 7. Export results
+    let base_name = if let Some(first_file) = config.input_files.first() {
+        Path::new(first_file)
+            .file_stem()
+            .and_then(|s| s.to_str())
+            .unwrap_or("annotated_games")
+    } else {
+        "annotated_games"
+    };
+
     for format in &config.formats {
         match format.as_str() {
             "pgn" => {
                 let pgn_out = export_to_pgn(&all_games);
-                let output_path = out_dir.join("annotated_games.pgn");
+                let file_name = format!("{}_annotated.pgn", base_name);
+                let output_path = out_dir.join(file_name);
                 fs::write(&output_path, pgn_out)?;
                 println!("Exported annotated PGN to: {:?}", output_path);
             }
             "json" => {
                 let json_out = export_to_json(&all_games)?;
-                let output_path = out_dir.join("analyzed_games.json");
+                let file_name = format!("{}_analyzed.json", base_name);
+                let output_path = out_dir.join(file_name);
                 fs::write(&output_path, json_out)?;
                 println!("Exported structured JSON to: {:?}", output_path);
             }
