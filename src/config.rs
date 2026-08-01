@@ -25,6 +25,9 @@ pub struct CliArgs {
     #[arg(short = 'm', long, help = "Hash size (MB) per Stockfish process")]
     pub hash: Option<u32>,
 
+    #[arg(long, help = "Maximum search time (seconds) per position (default: 20)")]
+    pub movetime: Option<u32>,
+
     #[arg(long, help = "Comma-separated output formats (e.g., 'pgn,json')")]
     pub format: Option<String>,
 
@@ -42,6 +45,7 @@ pub struct EngineConfigJson {
     pub processes: Option<String>,
     pub threads_per_process: Option<u32>,
     pub hash_mb: Option<u32>,
+    pub movetime_sec: Option<u32>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -63,6 +67,7 @@ pub struct ResolvedConfig {
     pub processes: String,
     pub threads_per_process: Option<u32>,
     pub hash_mb: Option<u32>,
+    pub movetime_sec: u32,
     pub formats: Vec<String>,
     pub output_dir: String,
     pub input_files: Vec<String>,
@@ -128,6 +133,10 @@ impl ResolvedConfig {
         let hash_mb = cli.hash
             .or_else(|| config_json.engine.as_ref().and_then(|e| e.hash_mb));
 
+        let movetime_sec = cli.movetime
+            .or_else(|| config_json.engine.as_ref().and_then(|e| e.movetime_sec))
+            .unwrap_or(20); // Default to 20 seconds limit
+
         let formats = if let Some(fmt_str) = cli.format {
             fmt_str.split(',').map(|s| s.trim().to_lowercase()).collect()
         } else if let Some(fmts) = config_json.output.as_ref().and_then(|o| o.format.clone()) {
@@ -146,6 +155,7 @@ impl ResolvedConfig {
             processes,
             threads_per_process,
             hash_mb,
+            movetime_sec,
             formats,
             output_dir,
             input_files: cli.input_files,

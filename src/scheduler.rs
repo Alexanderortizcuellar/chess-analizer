@@ -15,6 +15,7 @@ pub struct SchedulerConfig {
     pub num_processes: String, // "auto" or integer string
     pub threads_per_process: Option<u32>,
     pub hash_mb_per_process: Option<u32>,
+    pub movetime_sec: u32,
 }
 
 #[derive(Debug, Clone)]
@@ -162,6 +163,7 @@ pub async fn analyze_games(
             let threads = profile.threads_per_process;
             let hash_mb = profile.hash_mb;
             let depth = config.depth;
+            let movetime_sec = config.movetime_sec;
 
             let worker = tokio::spawn(async move {
                 let engine_config = EngineConfig {
@@ -189,7 +191,7 @@ pub async fn analyze_games(
                         None => break, // Channel empty
                     };
 
-                    match engine.analyze_position(&job.fen, depth).await {
+                    match engine.analyze_position(&job.fen, depth, movetime_sec).await {
                         Ok((eval, meta)) => {
                             cache.insert(job.hash, job.fen, eval, meta);
                         }

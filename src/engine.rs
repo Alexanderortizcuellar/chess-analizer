@@ -70,10 +70,10 @@ impl EngineInstance {
         }
     }
 
-    pub async fn analyze_position(&mut self, fen: &str, depth: u32) -> Result<(Evaluation, EngineMetadata), String> {
+    pub async fn analyze_position(&mut self, fen: &str, depth: u32, movetime_sec: u32) -> Result<(Evaluation, EngineMetadata), String> {
         // Send FEN position
         self.send_line(&format!("position fen {}", fen)).await?;
-        self.send_line(&format!("go depth {} movetime 15000", depth)).await?;
+        self.send_line(&format!("go depth {} movetime {}", depth, movetime_sec * 1000)).await?;
 
         // Parse FEN to see who is the active player ('w' or 'b')
         // Standard FEN: [Board] [ActivePlayer] [Castling] [EnPassant] [Halfmove] [Fullmove]

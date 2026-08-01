@@ -57,6 +57,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         num_processes: config.processes.clone(),
         threads_per_process: config.threads_per_process,
         hash_mb_per_process: config.hash_mb,
+        movetime_sec: config.movetime_sec,
     };
 
     println!("Analyzing games using Stockfish...");
