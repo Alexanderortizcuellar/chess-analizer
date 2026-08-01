@@ -3,19 +3,15 @@ use std::fs;
 use std::collections::HashSet;
 use chess_analizer::pgn::parse_pgn;
 use chess_analizer::cache::normalize_fen;
-use chess_analizer::model::Game;
-use chess_analizer::exporter::export_to_pgn;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
     if args.len() < 2 {
-        println!("Usage: cargo run --release --bin count_unique -- <path_to_pgn> [output_filtered_pgn]");
+        println!("Usage: cargo run --release --bin count_unique -- <path_to_pgn>");
         return;
     }
     
     let path = &args[1];
-    let output_path = args.get(2);
-    
     println!("Reading PGN from: {} ...", path);
     
     let content = match fs::read_to_string(path) {
@@ -27,41 +23,17 @@ fn main() {
     };
     
     let games = parse_pgn(&content);
-    println!("Parsed {} total games from input file.", games.len());
+    println!("Parsed {} games.", games.len());
     
-    // Filter games from 2026 only
-    let filtered_games: Vec<Game> = games.into_iter()
-        .filter(|game| {
-            if let Some(year) = get_game_year(game) {
-                year == 2026
-            } else {
-                false
-            }
-        })
-        .collect();
-        
-    println!("Filtered down to {} games (from 2024 and later).", filtered_games.len());
-    
-    if filtered_games.is_empty() {
-        println!("No games found matching 2024 or later.");
+    if games.is_empty() {
+        println!("No games found in the file.");
         return;
-    }
-    
-    // Write filtered games to output path if specified
-    if let Some(out_p) = output_path {
-        println!("Writing filtered PGN to: {} ...", out_p);
-        let pgn_text = export_to_pgn(&filtered_games);
-        if let Err(e) = fs::write(out_p, pgn_text) {
-            eprintln!("Error writing filtered PGN file: {}", e);
-        } else {
-            println!("Successfully wrote filtered PGN file.");
-        }
     }
     
     let mut unique_fens = HashSet::new();
     let mut total_positions = 0;
     
-    for game in &filtered_games {
+    for game in &games {
         for (idx, mv) in game.moves.iter().enumerate() {
             total_positions += 1;
             let normalized_before = normalize_fen(&mv.fen_before);
@@ -75,8 +47,8 @@ fn main() {
         }
     }
     
-    println!("\n=== Metrics for 2024 and Later Games ===");
-    println!("Total positions across filtered games: {}", total_positions);
+    println!("\n=== Metrics for Chess Games ===");
+    println!("Total positions across games: {}", total_positions);
     println!("Unique positions (deduplicated): {}", unique_fens.len());
     
     // Calculate estimates
@@ -91,15 +63,4 @@ fn main() {
     println!("- At 20 seconds average per position: {:.2} hours", time_20s);
     println!("- At 30 seconds average per position: {:.2} hours", time_30s);
     println!("- At 45 seconds average per position: {:.2} hours", time_45s);
-}
-
-fn get_game_year(game: &Game) -> Option<i32> {
-    let date_str = game.get_header("Date")
-        .or_else(|| game.get_header("date"))?;
-        
-    if date_str.len() >= 4 {
-        date_str[0..4].parse::<i32>().ok()
-    } else {
-        None
-    }
 }
