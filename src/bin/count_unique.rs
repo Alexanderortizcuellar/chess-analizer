@@ -29,11 +29,11 @@ fn main() {
     let games = parse_pgn(&content);
     println!("Parsed {} total games from input file.", games.len());
     
-    // Filter games from 2024 and later
+    // Filter games from 2026 only
     let filtered_games: Vec<Game> = games.into_iter()
         .filter(|game| {
             if let Some(year) = get_game_year(game) {
-                year >= 2024
+                year == 2026
             } else {
                 false
             }
