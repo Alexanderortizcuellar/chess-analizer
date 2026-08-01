@@ -9,6 +9,8 @@ use chess_analizer::exporter::{export_to_pgn, export_to_json};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let start_time = std::time::Instant::now();
+    
     // 1. Resolve configuration
     let config = match ResolvedConfig::resolve() {
         Ok(c) => c,
@@ -90,6 +92,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
     }
 
-    println!("Chess Analyzer finished successfully!");
+    let duration = start_time.elapsed();
+    println!("Chess Analyzer finished successfully in {:.2?}!", duration);
     Ok(())
 }
