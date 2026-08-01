@@ -2,6 +2,7 @@
 name = "chess-analizer"
 version = "0.1.0"
 edition = "2024"
+default-run = "chess-analizer"
 
 [dependencies]
 shakmaty = "0.30"
