@@ -1,0 +1,13 @@
+{
+  "engine": {
+    "path": "C:\\Users\\ASUS\\chess\\engines\\stockfish.exe",
+    "depth": 12,
+    "processes": "auto",
+    "threads_per_process": 1,
+    "hash_mb": 128
+  },
+  "output": {
+    "format": ["pgn", "json"],
+    "output_dir": "."
+  }
+}

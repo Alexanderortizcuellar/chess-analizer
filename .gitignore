@@ -1,0 +1,4 @@
+/target
+analyzed_games.json
+annotated_games.pgn
+*.pgn
